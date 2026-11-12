@@ -1,0 +1,23 @@
+{
+  "aadhaar": {"name": "Aadhaar card", "name_hi": "आधार कार्ड", "how_to_get": "Enrol or update at an Aadhaar centre or at uidai.gov.in; carry proof of identity and address."},
+  "bank_passbook": {"name": "Bank passbook / account details (Aadhaar-linked)", "name_hi": "बैंक पासबुक / खाता विवरण (आधार से जुड़ा)", "how_to_get": "Open a savings account at any bank or post office (a Jan Dhan account needs only Aadhaar) and link it with Aadhaar."},
+  "mobile_number": {"name": "Mobile number (preferably linked with Aadhaar)", "name_hi": "मोबाइल नंबर (आधार से जुड़ा हो तो बेहतर)", "how_to_get": "Use your own active number; update it at an Aadhaar centre if it is not linked."},
+  "land_records": {"name": "Land ownership records (Khasra/Khatauni/Jamabandi)", "name_hi": "भूमि अभिलेख (खसरा/खतौनी/जमाबंदी)", "how_to_get": "Download from your state land-records portal or get a copy from the Patwari / Tehsil office."},
+  "ration_card": {"name": "Ration card", "name_hi": "राशन कार्ड", "how_to_get": "Apply through your state food & civil supplies department or the nearest Fair Price Shop / CSC."},
+  "job_card": {"name": "MGNREGA job card", "name_hi": "मनरेगा जॉब कार्ड", "how_to_get": "Apply at your Gram Panchayat; it is issued free of cost."},
+  "income_certificate": {"name": "Income certificate", "name_hi": "आय प्रमाण पत्र", "how_to_get": "Apply at the Tehsil / SDM office or your state e-District portal."},
+  "address_proof": {"name": "Address proof", "name_hi": "पते का प्रमाण", "how_to_get": "Aadhaar, voter ID, utility bill or rent agreement is usually accepted."},
+  "affidavit_no_pucca_house": {"name": "Self-declaration that you do not own a pucca house", "name_hi": "स्वघोषणा कि आपके पास पक्का मकान नहीं है", "how_to_get": "Written on plain paper or a notarised affidavit as required by the application portal."},
+  "girl_birth_certificate": {"name": "Birth certificate of the girl child", "name_hi": "बालिका का जन्म प्रमाण पत्र", "how_to_get": "Issued by the municipality / Gram Panchayat registrar of births."},
+  "passport_photo": {"name": "Passport-size photograph", "name_hi": "पासपोर्ट साइज़ फोटो", "how_to_get": "Recent colour photographs from any photo studio."},
+  "pan": {"name": "PAN card", "name_hi": "पैन कार्ड", "how_to_get": "Apply at incometax.gov.in or through a PAN service centre."},
+  "business_proof": {"name": "Business proof (Udyam registration / trade licence / shop licence)", "name_hi": "व्यवसाय का प्रमाण (उद्यम पंजीकरण / ट्रेड लाइसेंस / दुकान लाइसेंस)", "how_to_get": "Udyam registration is free at udyamregistration.gov.in; trade licences come from the local municipal body."},
+  "vending_certificate": {"name": "Certificate of Vending / ID card / Letter of Recommendation from the local body", "name_hi": "वेंडिंग प्रमाण पत्र / पहचान पत्र / नगर निकाय की अनुशंसा पत्र", "how_to_get": "Request from your Urban Local Body (municipality) or Town Vending Committee."},
+  "age_proof": {"name": "Age proof (birth certificate / school certificate / voter ID)", "name_hi": "आयु का प्रमाण (जन्म प्रमाण पत्र / स्कूल प्रमाण पत्र / वोटर आईडी)", "how_to_get": "Use any one government-issued document showing date of birth."},
+  "bpl_certificate": {"name": "BPL certificate / BPL list entry", "name_hi": "बीपीएल प्रमाण पत्र / बीपीएल सूची में नाम", "how_to_get": "Obtain from the Gram Panchayat / Block office or your state's BPL portal."},
+  "mcp_card": {"name": "Mother and Child Protection (MCP) card / pregnancy registration proof", "name_hi": "मातृ एवं शिशु सुरक्षा (एमसीपी) कार्ड / गर्भावस्था पंजीकरण प्रमाण", "how_to_get": "Register the pregnancy at the nearest Anganwadi centre or government health facility."},
+  "caste_certificate": {"name": "Caste certificate (SC/ST/OBC)", "name_hi": "जाति प्रमाण पत्र (SC/ST/OBC)", "how_to_get": "Apply at the Tehsil / SDM office or your state e-District portal."},
+  "marksheet": {"name": "Previous year marksheet", "name_hi": "पिछले वर्ष की अंकतालिका", "how_to_get": "Issued by your school / college / university."},
+  "admission_proof": {"name": "Admission proof / fee receipt of the current course", "name_hi": "वर्तमान पाठ्यक्रम का प्रवेश प्रमाण / फीस रसीद", "how_to_get": "Get it from your institution's office."},
+  "sowing_declaration": {"name": "Sowing / crop declaration", "name_hi": "बुवाई / फसल घोषणा", "how_to_get": "Submit through your bank, CSC or the PMFBY portal at the time of enrolment."}
+}
