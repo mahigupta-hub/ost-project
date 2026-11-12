@@ -133,13 +133,6 @@ The dataset is in `ai-engine/data/schemes.json`. Each record has a `verification
 - **Backend:** Python, FastAPI/Flask, SQL
 - **AI:** Retrieval-Augmented Generation (RAG), TF-IDF / Gemini embeddings, Google Gemini API, scikit-learn, Pydantic
 
-## Team
-
-| Name | Role |
-|---|---|
-| **Mahi** | Backend developer – APIs, user profiles, eligibility matching, database |
-| **Nandini** | Frontend developer – React UI/UX, multilingual interface, API integration |
-| **Millyshree** | AI/ML and data developer – scheme dataset, RAG, multilingual understanding, explanations, checklists |
 
 ## Disclaimer
 
