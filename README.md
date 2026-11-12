@@ -28,11 +28,6 @@ instantly see **which schemes they qualify for, why, what documents to collect, 
                                                                                        document checklists
 ```
 
-| Part | Folder | Owner | Tech |
-|---|---|---|---|
-| Frontend (UI/UX) | `frontend/` | Nandini | React.js, HTML, CSS, JavaScript, Tailwind CSS |
-| Backend and APIs | `backend/` | Mahi | Python, FastAPI/Flask, SQL |
-| AI / RAG engine and scheme data | `ai-engine/` | Millyshree | Python, RAG, NLP, Gemini API, scikit-learn |
 
 ## Repository structure
 
