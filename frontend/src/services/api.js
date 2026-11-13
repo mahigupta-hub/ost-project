@@ -14,18 +14,11 @@ const api = axios.create({
 
 /**
  * Fetch schemes matching the citizen profile.
- *
- * TO SWITCH TO REAL BACKEND:
- * Replace `return mockSchemes;` below with:
- * return (await api.post('/api/match', profile)).data;
- *
  * @param {Object} profile - Citizen demographic criteria (age, state, income, etc.)
  * @returns {Promise<Array>} Matched scheme list
  */
 export const getMatchedSchemes = async (profile) => {
-  // --- CHANGE THIS SINGLE LINE TO SWITCH TO REAL BACKEND ---
-  return mockSchemes;
-  // return (await api.post('/api/match', profile)).data;
+  return (await api.post('/api/match', profile)).data;
 };
 
 /**

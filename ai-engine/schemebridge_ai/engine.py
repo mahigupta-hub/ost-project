@@ -1,4 +1,3 @@
-"""SchemeBridgeAI – the single entry point Mahi's backend (or the bundled FastAPI app) calls."""
 from typing import List, Optional, Union
 from . import config
 from .checklist import combined_checklist, scheme_documents
