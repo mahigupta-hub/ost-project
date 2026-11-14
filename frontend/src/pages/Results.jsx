@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { getMatchedSchemes } from '../services/api';
+import { getMatchedSchemes, getAllSchemes } from '../services/api';
 import {
   CheckCircle2,
   Sparkles,
@@ -33,6 +33,18 @@ export default function Results() {
     }
   });
 
+  // --- NEW: Track if the user wants to browse ALL schemes ---
+  const [isBrowseMode, setIsBrowseMode] = useState(() => {
+    // If the link explicitly says browse all, or if there is no profile at all
+    if (location.state?.browseAll) return true;
+    
+    let hasProfile = false;
+    if (location.state?.profile) hasProfile = true;
+    else if (localStorage.getItem('citizen_profile')) hasProfile = true;
+    
+    return !hasProfile;
+  });
+
   const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,17 +54,20 @@ export default function Results() {
     setLoading(true);
     setError(null);
 
-    getMatchedSchemes(profile)
+    // --- FIX: Choose the correct API function based on the mode! ---
+    const fetchPromise = isBrowseMode ? getAllSchemes() : getMatchedSchemes(profile);
+
+    fetchPromise
       .then((data) => {
         setSchemes(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error fetching matched schemes:', err);
+        console.error('Error fetching schemes:', err);
         setError(t.results.errorMsg || 'Unable to connect to the server.');
         setLoading(false);
       });
-  }, [profile, t.results.errorMsg]);
+  }, [profile, isBrowseMode, t.results.errorMsg]);
 
   useEffect(() => {
     fetchSchemes();
@@ -63,100 +78,122 @@ export default function Results() {
       {/* ------------------------------------------------------------- */}
       {/* 1. CITIZEN PROFILE SUMMARY BANNER                             */}
       {/* ------------------------------------------------------------- */}
-      <section className="bg-white rounded-3xl border border-emerald-100 p-5 sm:p-8 shadow-sm mb-8 sm:mb-10 relative overflow-hidden">
-        {/* Soft background glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none"></div>
+      
+      {/* Only show the banner if we are looking at My Matches and have a profile */}
+      {!isBrowseMode && (
+        <section className="bg-white rounded-3xl border border-emerald-100 p-5 sm:p-8 shadow-sm mb-8 sm:mb-10 relative overflow-hidden">
+          {/* Soft background glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-50 pb-5">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>{t.results.summaryTag}</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
-                {t.results.heading}
-              </h1>
-            </div>
-
-            <Link
-              to="/profile"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-bold transition border border-slate-200 hover:border-emerald-200 self-start sm:self-auto"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>{t.results.editProfile}</span>
-            </Link>
-          </div>
-
-          {profile ? (
-            /* Chips display of profile attributes */
-            <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.age}</span>
-                <span className="text-sm font-bold text-slate-800">{profile.age || '—'} yrs</span>
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-50 pb-5">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{t.results.summaryTag}</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                  {t.results.heading}
+                </h1>
               </div>
 
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.gender}</span>
-                <span className="text-sm font-bold text-slate-800">{profile.gender || '—'}</span>
-              </div>
-
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.state}</span>
-                <span className="text-sm font-bold text-slate-800 truncate block" title={profile.state}>
-                  {profile.state || t.results.allIndia}
-                </span>
-              </div>
-
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.category}</span>
-                <span className="text-sm font-bold text-slate-800">{profile.category || 'General'}</span>
-              </div>
-
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.occupation}</span>
-                <span className="text-sm font-bold text-slate-800 truncate block" title={profile.occupation}>
-                  {profile.occupation || '—'}
-                </span>
-              </div>
-
-              <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.annualIncome}</span>
-                <span className="text-sm font-bold text-emerald-700 truncate block">
-                  ₹{profile.annualIncome ? Number(profile.annualIncome).toLocaleString('en-IN') : '0'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <span className="leading-relaxed">
-                {t.results.generalWarning}
-              </span>
               <Link
                 to="/profile"
-                className="font-bold text-amber-900 underline hover:text-amber-950 shrink-0"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-bold transition border border-slate-200 hover:border-emerald-200 self-start sm:self-auto"
               >
-                {t.results.fillProfileLink} &rarr;
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{t.results.editProfile}</span>
               </Link>
             </div>
-          )}
-        </div>
-      </section>
+
+            {profile ? (
+              /* Chips display of profile attributes */
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.age}</span>
+                  <span className="text-sm font-bold text-slate-800">{profile.age || '—'} yrs</span>
+                </div>
+
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.gender}</span>
+                  <span className="text-sm font-bold text-slate-800">{profile.gender || '—'}</span>
+                </div>
+
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.state}</span>
+                  <span className="text-sm font-bold text-slate-800 truncate block" title={profile.state}>
+                    {profile.state || t.results.allIndia}
+                  </span>
+                </div>
+
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.category}</span>
+                  <span className="text-sm font-bold text-slate-800">{profile.category || 'General'}</span>
+                </div>
+
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.occupation}</span>
+                  <span className="text-sm font-bold text-slate-800 truncate block" title={profile.occupation}>
+                    {profile.occupation || '—'}
+                  </span>
+                </div>
+
+                <div className="bg-[#f8faf9] p-3 rounded-2xl border border-emerald-100/60">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">{t.results.annualIncome}</span>
+                  <span className="text-sm font-bold text-emerald-700 truncate block">
+                    ₹{profile.annualIncome ? Number(profile.annualIncome).toLocaleString('en-IN') : '0'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <span className="leading-relaxed">
+                  {t.results.generalWarning}
+                </span>
+                <Link
+                  to="/profile"
+                  className="font-bold text-amber-900 underline hover:text-amber-950 shrink-0"
+                >
+                  {t.results.fillProfileLink} &rarr;
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ------------------------------------------------------------- */}
       {/* 2. SCHEME CARDS GRID & STATES                                 */}
       {/* ------------------------------------------------------------- */}
       <div>
         {!loading && !error && (
-          <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                {t.results.schemesFoundTitle} ({schemes.length})
+                {isBrowseMode ? "All Available Schemes" : t.results.schemesFoundTitle} ({schemes.length})
               </h2>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {t.results.schemesSubtitle}
+                {isBrowseMode ? "Browsing the complete directory of government schemes" : t.results.schemesSubtitle}
               </p>
             </div>
+
+            {/* --- NEW: TOGGLE BUTTON FOR USER CONTROL --- */}
+            {profile && (
+              <div className="flex bg-slate-100 p-1 rounded-xl shrink-0 border border-slate-200">
+                <button
+                  onClick={() => setIsBrowseMode(false)}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${!isBrowseMode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200/60' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  My Matches
+                </button>
+                <button
+                  onClick={() => setIsBrowseMode(true)}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${isBrowseMode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200/60' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  All Schemes
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -212,17 +249,18 @@ export default function Results() {
                 className="group relative overflow-hidden rounded-3xl bg-white border border-emerald-100 shadow-sm hover-lift flex flex-col justify-between p-6 sm:p-7 before:absolute before:top-0 before:left-0 before:right-0 before:h-1.5 before:bg-gradient-to-r before:from-emerald-600 before:via-teal-500 before:to-amber-400"
               >
                 <div>
-                  {/* Category Tag Chip & Green Eligible Badge */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="text-[11px] font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full truncate max-w-[65%]">
                       {scheme.source}
                     </span>
 
-                    {/* Green "Eligible" Badge */}
-                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-2.5 py-0.5 rounded-full shrink-0">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>{t.results.eligibleBadge}</span>
-                    </span>
+                    {/* Green "Eligible" Badge - Only show when NOT browsing all */}
+                    {!isBrowseMode && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-2.5 py-0.5 rounded-full shrink-0">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>{t.results.eligibleBadge}</span>
+                      </span>
+                    )}
                   </div>
 
                   {/* Scheme Name */}

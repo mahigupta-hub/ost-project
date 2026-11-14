@@ -23,10 +23,29 @@ export const getMatchedSchemes = async (profile) => {
 
 /**
  * Fetch single scheme by ID.
- * @param {string} id - Scheme ID
+ * @param {string} id Scheme ID
  */
 export const getSchemeById = async (id) => {
-  return mockSchemes.find((s) => s.id === id) || null;
+  try {
+    const response = await api.get(`/api/schemes/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching scheme details:", error);
+    return null;
+  }
+};
+/**
+ * Fetch ALL available schemes without checking eligibility.
+ * @returns {Promise<Array>} Complete scheme list
+ */
+export const getAllSchemes = async () => {
+  try {
+    const response = await api.get('/api/schemes');
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all schemes:", error);
+    return [];
+  }
 };
 
 export { api };

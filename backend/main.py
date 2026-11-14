@@ -81,11 +81,17 @@ def match_schemes(profile: MatchRequest):
     frontend_results = []
     for row in analysis.get("results", []):
         if row["status"] != "not_eligible":
-            # Extract explanation text
             exp = row.get("explanation", "")
-            why_text = exp.get("summary", str(exp)) if isinstance(exp, dict) else str(exp)
+            if isinstance(exp, dict):
+                if exp.get("summary"):
+                    why_text = exp["summary"]
+                else:
+                    met_conditions = exp.get("met", [])
+                    why_text = "Eligible because: " + ", ".join(met_conditions) if met_conditions else "All eligibility criteria met."
+            else:
+                why_text = str(exp)
             
-           
+            # Safely extract strings for documents
             raw_docs = row.get("documents", [])
             docs = []
             if isinstance(raw_docs, dict):
@@ -93,24 +99,22 @@ def match_schemes(profile: MatchRequest):
             
             for d in raw_docs:
                 if isinstance(d, dict):
-                    # Extract the 'name' or 'key' from the dictionary
                     docs.append(str(d.get("name", d.get("key", "Required Document"))))
                 else:
                     docs.append(str(d))
                 
-            
+            # Safely extract string for source
             raw_srcs = row.get("sources", ["Official Portal"])
             first_src = raw_srcs[0] if isinstance(raw_srcs, list) and len(raw_srcs) > 0 else raw_srcs
             
             if isinstance(first_src, dict):
-                # Extract the 'title' or 'url' from the dictionary
                 src_str = str(first_src.get("title", first_src.get("url", "Official Portal")))
             else:
                 src_str = str(first_src)
             
             frontend_results.append(
                 SchemeResponse(
-                    id=row["scheme_id"],
+                    id=str(row["scheme_id"]), # Ensure outgoing ID is safely a string
                     name=row["name"],
                     benefit=str(row.get("benefits", "")),
                     why_eligible=why_text,
@@ -122,14 +126,58 @@ def match_schemes(profile: MatchRequest):
             
     return frontend_results
 
+@app.get("/api/schemes", response_model=List[SchemeResponse])
+def get_all_schemes():
+    engine = get_engine()
+    frontend_results = []
+    
+    # Loop through ALL schemes in the AI engine's database, completely ignoring the user profile
+    for s in engine.schemes.values():
+        # Safely extract string for source
+        raw_srcs = s.get("sources", ["Official Portal"])
+        first_src = raw_srcs[0] if isinstance(raw_srcs, list) and len(raw_srcs) > 0 else raw_srcs
+        if isinstance(first_src, dict):
+            src_str = str(first_src.get("title", first_src.get("url", "Official Portal")))
+        else:
+            src_str = str(first_src)
+            
+        # Safely extract strings for documents
+        raw_docs = s.get("documents", [])
+        docs = []
+        if isinstance(raw_docs, dict):
+            raw_docs = [item for sublist in raw_docs.values() for item in (sublist if isinstance(sublist, list) else [sublist])]
+        for d in raw_docs:
+            if isinstance(d, dict):
+                docs.append(str(d.get("name", d.get("key", "Required Document"))))
+            else:
+                docs.append(str(d))
+        
+        frontend_results.append(
+            SchemeResponse(
+                id=str(s["id"]),
+                name=s["name"],
+                benefit=str(s.get("benefits", s.get("summary", ""))),
+                why_eligible="Review details for full eligibility criteria.", # Generic text since we aren't checking a profile here
+                documents=docs,
+                apply_link=s.get("apply_url", s.get("official_url", "")),
+                source=src_str
+            )
+        )
+        
+    return frontend_results
+
 @app.get("/api/schemes/{id}", response_model=SchemeResponse)
 def get_scheme(id: str):
     engine = get_engine()
+
     s = engine.get_scheme(id)
-    
-    if not s:
-        raise HTTPException(404, "Scheme not found")
+    if not s and id.isdigit():
+        s = engine.get_scheme(int(id))
         
+    if not s:
+        raise HTTPException(status_code=404, detail="Scheme not found")
+        
+    # Safely extract string for source
     raw_srcs = s.get("sources", ["Official Portal"])
     first_src = raw_srcs[0] if isinstance(raw_srcs, list) and len(raw_srcs) > 0 else raw_srcs
     
@@ -138,6 +186,7 @@ def get_scheme(id: str):
     else:
         src_str = str(first_src)
         
+    # Safely extract strings for documents
     raw_docs = s.get("documents", [])
     docs = []
     if isinstance(raw_docs, dict):
@@ -150,7 +199,7 @@ def get_scheme(id: str):
             docs.append(str(d))
     
     return SchemeResponse(
-        id=s["id"],
+        id=str(s["id"]), # Ensure outgoing ID is safely a string
         name=s["name"],
         benefit=str(s.get("benefits", "")),
         why_eligible="Detailed eligibility criteria applied.",
